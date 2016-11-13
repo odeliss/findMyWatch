@@ -36,8 +36,9 @@ STEP_1: store keypoints and features for all the watches in the dataset WATCHES
 	--features_db: directory FEATURES and filename of the DB that will contain the image_ID, start and end position of the features, list fo features
 	--approx_images: apporximate number of images in the dataset WATCHES
 	--max-buffer-size: 500000 nb of fetures that will be held in memory before dumping to the database
-python index_features.py --dataset datasets/watches --features-db features/watchesFeatures.hdf5 --approx-images 2500 --max-buffer-size 500000
+python index_features.py --dataset datasets/watches/ --features-db features/watchesFeatures.hdf5 --approx-images 3500 --max-buffer-size 500000
 WARNING: remove the debug flag in index_features
+Duration for 3100 images - +/-50mins
 
 (2)expected results:
 ------------------
@@ -57,13 +58,14 @@ STEP_2: Create a codebook for the dataset of watches
 	--codebook: codebook/vocab.cpickle (dictionary of visual images - centroids of the clusters of features)
 	--clusters: 1536 nb of clusters (nb of words in the codebook)
 	--percentage: 0.25 percentage of total features to use to create the cluster
-python cluster_features.py --features-db features/watchesFeatures.hdf5 --codebook codebook/vocab.cpickle --clusters 1000 --percentage 0.25
+python cluster_features.py --features-db features/watchesFeatures.hdf5 --codebook codebook/vocab.cpickle --clusters 1500 --percentage 0.25
 WARNING: remove the debug flag in cluster_features
 
 (2) expected results:
 ---------------------
 A cpickle file in the codebook directory that will contain the centroids of each of clusters of features
-duration for 749324 samples:+/-60mins
+duration for 749324 samples:+/-60mins. 835000:85mins
+
 (3) how to test:
 ----------------
 Try to visualize the with following command that will create images in the vocabimages directory
@@ -79,6 +81,8 @@ STEP_3: Create an histogram for each pictures
 	--max-buffer-size: 500000 (nb of histogram stored in memory before dump to file)
 	
 python extract_bovw.py --features-db features/watchesFeatures.hdf5 --codebook codebook/vocab.cpickle --bovw-db bovw/watchesBovw.hdf5 --idf idf.cpickle --max-buffer-size 500000
+duration: 3100 images in 6mins
+
 
 (2) expected results:
 ---------------------
