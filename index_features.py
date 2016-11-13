@@ -15,7 +15,7 @@ import cv2
 from pathlib import Path
 import csv
 
-DEBUG = True
+DEBUG = False
 IMAGE_WIDTH = 320
 #TO DO: put the constant in a common constant file
 
@@ -39,9 +39,9 @@ if DEBUG == False:
 else:
         #dataset = "UKBenchDataset/ukbench_quiz"
         dataset = "datasets/watches/"
-        featuresDb = "features/featuresquiz.hdf5"
-        approxImages = 1000
-        maxBufferSize = 800000
+        featuresDb = "features/featuresTest.hdf5"
+        approxImages = 60
+        maxBufferSize = 80000
 # initialize the keypoint detector, local invariant descriptor, and the descriptor
 '''Adapted for CV3 compliance
 detector = cv2.FeatureDetector_create("SURF")
@@ -88,6 +88,6 @@ for (i, imagePath) in enumerate(paths.list_images(dataset)):
         # index the features
         #[12-11-2016]
         indexDict = filename.rfind("/")+2 #+2 coz some_ there...
-        fi.add(filename, kps, descs, scrapedDataDict[filename[indexDict:]])
+        fi.add(filename, kps, descs, str(scrapedDataDict[filename[indexDict:]]))
 # finish the indexing process
 fi.finish()

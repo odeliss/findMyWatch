@@ -2,12 +2,13 @@
 from pyimagesearch.indexer.baseindexer import BaseIndexer
 import numpy as np
 import h5py
+#[12-11-2016] added additional data in the HDF5 DB
 
 class FeatureIndexer(BaseIndexer):
 	def __init__(self, dbPath, estNumImages=500, maxBufferSize=50000, dbResizeFactor=2,
 		verbose=True):
 		# call the parent constructor
-		print(dbPath)
+		#print(dbPath)
 		super(FeatureIndexer, self).__init__(dbPath, estNumImages=estNumImages,
 			maxBufferSize=maxBufferSize, dbResizeFactor=dbResizeFactor,
 			verbose=verbose)
@@ -18,20 +19,25 @@ class FeatureIndexer(BaseIndexer):
 		self.imageIDDB = None
 		self.indexDB = None
 		self.featuresDB = None
+		self.dataDB = None #+++[12-11-2016] - added additional data field
 
 		# initialize the image IDs buffer, index buffer and the keypoints +
 		# features buffer
 		self.imageIDBuffer = []
 		self.indexBuffer = []
 		self.featuresBuffer = None
+		self.dataBuffer = [] #+++[12-11-2016] - added additional data field
 
 		# initialize the total number of features in the buffer along with the
 		# indexes dictionary
 		self.totalFeatures = 0
 		self.idxs = {"index": 0, "features": 0}
-
-	def add(self, imageID, kps, features):
+	
+	#+++ [12-11-2016] added additional data in the HDF5 DB (affiliate link)
+	def add(self, imageID, kps, features, additionalData):
 		# compute the starting and ending index for the features lookup
+		# the additional data is the ASIN code, the affiliate URL is built based on it 
+		# and stored in the DB
 		start = self.idxs["features"] + self.totalFeatures
 		end = start + len(features)
 
@@ -41,18 +47,20 @@ class FeatureIndexer(BaseIndexer):
 		self.featuresBuffer = BaseIndexer.featureStack(np.hstack([kps, features]),
 			self.featuresBuffer)
 		self.indexBuffer.append((start, end))
+		self.dataBuffer.append(additionalData)#+++[12-11-2016] added additional data in the HDF5 DB (affiliate link)
+		
 		self.totalFeatures += len(features)
 
 		# check to see if we have reached the maximum buffer size
 		if self.totalFeatures >= self.maxBufferSize:
 			# if the databases have not been created yet, create them
-			if None in (self.imageIDDB, self.indexDB, self.featuresDB):
+			if None in (self.imageIDDB, self.indexDB, self.featuresDB, self.dataDB):#+++[12-11-2016] added additional data in the HDF5 DB
 				self._debug("initial buffer full")
 				self._createDatasets()
 
 			# write the buffers to file
 			self._writeBuffers()
-
+	
 	def _createDatasets(self):
 		# compute the average number of features extracted from the initial buffer
 		# and use this number to determine the approximate number of features for
@@ -72,6 +80,10 @@ class FeatureIndexer(BaseIndexer):
 		self.featuresDB = self.db.create_dataset("features",
 			(approxFeatures, fvectorSize), maxshape=(None, fvectorSize),
 			dtype="float")
+		#+++[12-11-2016] - added additional data field containing only 1 data - the affiliate URL
+		self.dataDB = self.db.create_dataset("addData", (self.estNumImages,),
+			maxshape=(None,), dtype=h5py.special_dtype(vlen=str))
+		#---[12-11-2016] - added additional data ASIN field	
 
 	def _writeBuffers(self):
 		# write the buffers to disk
@@ -80,7 +92,9 @@ class FeatureIndexer(BaseIndexer):
 		self._writeBuffer(self.indexDB, "index", self.indexBuffer, "index")
 		self._writeBuffer(self.featuresDB, "features", self.featuresBuffer,
 			"features")
-
+		#+++[12-11-2016] added additional data in the HDF5 DB (affiliate link)
+		self._writeBuffer(self.dataDB, "addData", self.dataBuffer, "index")
+		#---[12-11-2016] added additional data in the HDF5 DB (affiliate link)
 		# increment the indexes
 		self.idxs["index"] += len(self.imageIDBuffer)
 		self.idxs["features"] += self.totalFeatures
@@ -94,7 +108,7 @@ class FeatureIndexer(BaseIndexer):
 	def finish(self):
 		# if the databases have not been initialized, then the original
 		# buffers were never filled up
-		if None in (self.imageIDDB, self.indexDB, self.featuresDB):
+		if None in (self.imageIDDB, self.indexDB, self.featuresDB, self.dataDB):#+++[12-11-2016] added additional data in the HDF5 DB (affiliate link)
 			self._debug("minimum init buffer not reached", msgType="[WARN]")
 			self._createDatasets()
 
@@ -107,6 +121,7 @@ class FeatureIndexer(BaseIndexer):
 		self._resizeDataset(self.imageIDDB, "image_ids", finished=self.idxs["index"])
 		self._resizeDataset(self.indexDB, "index", finished=self.idxs["index"])
 		self._resizeDataset(self.featuresDB, "features", finished=self.idxs["features"])
-
+		self._resizeDataset(self.dataDB, "addData", finished=self.idxs["index"])#+++[12-11-2016] added additional data in the HDF5 DB (affiliate link)
+		
 		# close the database
 		self.db.close()
