@@ -3,6 +3,7 @@ from pyimagesearch.indexer.baseindexer import BaseIndexer
 import numpy as np
 import h5py
 #[12-11-2016] added additional data in the HDF5 DB
+#[28-11-2016] added title as new scraped data
 
 class FeatureIndexer(BaseIndexer):
 	def __init__(self, dbPath, estNumImages=500, maxBufferSize=50000, dbResizeFactor=2,
@@ -36,8 +37,8 @@ class FeatureIndexer(BaseIndexer):
 	#+++ [12-11-2016] added additional data in the HDF5 DB (affiliate link)
 	def add(self, imageID, kps, features, additionalData):
 		# compute the starting and ending index for the features lookup
-		# the additional data is the ASIN code, the affiliate URL is built based on it 
-		# and stored in the DB
+		# the additional data is the ASIN code, and the title provided  
+		# as an additionalData list and stored in the DB
 		start = self.idxs["features"] + self.totalFeatures
 		end = start + len(features)
 
@@ -103,6 +104,7 @@ class FeatureIndexer(BaseIndexer):
 		self.imageIDBuffer = []
 		self.indexBuffer = []
 		self.featuresBuffer = None
+		self.dataBuffer = [] #+++[12-11-2016] added additional data in the HDF5 DB (affiliate link)
 		self.totalFeatures = 0
 
 	def finish(self):

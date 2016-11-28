@@ -3,6 +3,8 @@
 
 # import the necessary packages
 #[12-11-2016] added scraped data in hdf5 database
+#[28-11-2016] added title as new scraped data
+#TO DO: put the constant in a common constant file
 
 from __future__ import print_function
 from pyimagesearch.descriptors import DetectAndDescribe
@@ -17,9 +19,10 @@ import csv
 
 DEBUG = False
 IMAGE_WIDTH = 320
-#TO DO: put the constant in a common constant file
+ROW_REFERENCE = 1 #location in CSV line of the reference of the watch
+ROW_TITLE = 2 #location in the CSV line of the title of the watch
 
-if DEBUG == False:
+if DEBUG == True:
         # construct the argument parser and parse the arguments
         ap = argparse.ArgumentParser()
         ap.add_argument("-d", "--dataset", required=True,
@@ -56,10 +59,15 @@ scrapedDataReader = csv.reader(scrapedDataFile)
 scrapedData= list(scrapedDataReader)
 scrapedDataDict={}
 
+
 #[12-11-2016]
 for row in scrapedData: #loop on the CSV file rows and create a dictionnary of additional scraped data
-        index=row[0].rfind("\\")+1
-        scrapedDataDict[row[0][index+1:]]=row[1]
+        scrapedDataItem =[]
+        index=row[0].rfind("\\")+1 #the dictionary key is named as per the filename
+        #the value are stored in a str with items separated by #.
+        # Not found a better way to store in hdf5
+        scrapedDataDict[row[0][index+1:]]=str(row[ROW_REFERENCE])+"#"+str(row[ROW_TITLE]) #store the reference into item 1 of the dictionary with key =filename
+        
 
 # initialize the feature indexer
 fi = FeatureIndexer(featuresDb, estNumImages=approxImages,
@@ -88,6 +96,6 @@ for (i, imagePath) in enumerate(paths.list_images(dataset)):
         # index the features
         #[12-11-2016]
         indexDict = filename.rfind("/")+2 #+2 coz some_ there...
-        fi.add(filename, kps, descs, str(scrapedDataDict[filename[indexDict:]]))
+        fi.add(filename, kps, descs, scrapedDataDict[filename[indexDict:]])
 # finish the indexing process
 fi.finish()
