@@ -46,6 +46,7 @@ Duration for 3100 images - +/-50mins
 *this db stores for each images 
 	the keypoints computed by SURF
 	the features computed by ROOTSIFT
+	the additional data stored, separated by a '#' (reference#title)
 (3)how to test:
 ------------
 run the test_feature_extraction.py nd visually make sure the keypoints are corresponding to the image
