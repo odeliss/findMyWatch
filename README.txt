@@ -36,7 +36,8 @@ STEP_1: store keypoints and features for all the watches in the dataset WATCHES
 	--features_db: directory FEATURES and filename of the DB that will contain the image_ID, start and end position of the features, list fo features
 	--approx_images: apporximate number of images in the dataset WATCHES
 	--max-buffer-size: 500000 nb of fetures that will be held in memory before dumping to the database
-python index_features.py --dataset datasets/watches/ --features-db features/watchesFeatures.hdf5 --approx-images 3500 --max-buffer-size 500000
+	--appendToFile : set to True if you want to append data in the features_db file
+python index_features.py --dataset datasets/watches/ --features-db features/watchesFeatures.hdf5 --approx-images 3500 --max-buffer-size 500000 --appendToFile True
 WARNING: remove the debug flag in index_features
 Duration for 3100 images - +/-50mins
 

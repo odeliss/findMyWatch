@@ -1,0 +1,8 @@
+bovw/
+codebook/
+datasets/
+features/
+proddata/
+testdata/
+vocabimages/
+idf.cpickle
