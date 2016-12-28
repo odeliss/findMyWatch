@@ -37,7 +37,7 @@ STEP_1: store keypoints and features for all the watches in the dataset WATCHES
 	--approx_images: apporximate number of images in the dataset WATCHES
 	--max-buffer-size: 500000 nb of fetures that will be held in memory before dumping to the database
 	--appendToFile : set to True if you want to append data in the features_db file
-python index_features.py --dataset datasets/watches/ --features-db features/watchesFeatures.hdf5 --approx-images 3500 --max-buffer-size 500000 --appendToFile True
+python index_features.py --dataset datasets/watches/ --features-db features/watchesFeatures.hdf5 --approx-images 9000 --max-buffer-size 500000 --appendToFile True
 WARNING: remove the debug flag in index_features
 Duration for 3100 images - +/-50mins
 
@@ -59,8 +59,9 @@ STEP_2: Create a codebook for the dataset of watches
 	--codebook: codebook/vocab.cpickle (dictionary of visual images - centroids of the clusters of features)
 	--clusters: 1536 nb of clusters (nb of words in the codebook)
 	--percentage: 0.25 percentage of total features to use to create the cluster
-python cluster_features.py --features-db features/watchesFeatures.hdf5 --codebook codebook/vocab.cpickle --clusters 1500 --percentage 0.25
+python cluster_features.py --features-db features/watchesFeatures.hdf5 --codebook codebook/vocab.cpickle --clusters 741 --percentage 0.25
 WARNING: remove the debug flag in cluster_features
+PARAM Fine-Tuning: 9000 watches sorted in 900 categories (10 w/cat) - with 10 differentiating areas (aiguilles, chiffres, contours, marque etc...) each having 7 differents textures = 9000*0.7*7= clusters
 
 (2) expected results:
 ---------------------

@@ -18,7 +18,7 @@ import cv2
 from pathlib import Path
 import csv
 
-DEBUG = True
+DEBUG = False
 IMAGE_WIDTH = 320
 ROW_REFERENCE = 1 #location in CSV line of the reference of the watch
 ROW_TITLE = 2 #location in the CSV line of the title of the watch
@@ -35,7 +35,7 @@ if DEBUG == False:
         ap.add_argument("-b", "--max-buffer-size", type=int, default=50000,
                 help="Maximum buffer size for # of features to be stored in memory")
         #[26-12-2016 +++]
-        ap.add_argument("-a", "--append", type=bool, 
+        ap.add_argument("-ap", "--appendToFile", type=bool, 
                 help="True indicates that data must be added to existing file")
         #[26-12-2016 ---]
         args = vars(ap.parse_args())
@@ -45,7 +45,7 @@ if DEBUG == False:
         approxImages = args["approx_images"]
         maxBufferSize = args["max_buffer_size"]
         #[26-12-2016 +++]
-        appendToFile = args["append"]
+        appendToFile = args["appendToFile"]
         #[26-12-2016 ---]
 else:
         #dataset = "UKBenchDataset/ukbench_quiz"
