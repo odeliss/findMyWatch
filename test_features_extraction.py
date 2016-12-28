@@ -7,7 +7,7 @@ import imutils
 
 features_DB = "features\\watchesFeatures.hdf5"
 
-for i in range (0,1000):
+for i in range (8000,8010):
     #extract 100th image data from the hdf5 file
     db = h5py.File(features_DB, mode="r")
     imageID=db["image_ids"][i]

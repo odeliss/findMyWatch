@@ -4,37 +4,60 @@ import numpy as np
 import h5py
 #[12-11-2016] added additional data in the HDF5 DB
 #[28-11-2016] added title as new scraped data
+#[26-12-2016] added option to append data to an existing feature file
 
-class FeatureIndexer(BaseIndexer):
-	def __init__(self, dbPath, estNumImages=500, maxBufferSize=50000, dbResizeFactor=2,
-		verbose=True):
-		# call the parent constructor
-		#print(dbPath)
-		super(FeatureIndexer, self).__init__(dbPath, estNumImages=estNumImages,
-			maxBufferSize=maxBufferSize, dbResizeFactor=dbResizeFactor,
-			verbose=verbose)
+class FeatureIndexer(BaseIndexer): #is inherited from the Baseindexer
 
-		# open the HDF5 database for writing and initialize the datasets within
-		# the group
-		self.db = h5py.File(self.dbPath, mode="w")
-		self.imageIDDB = None
-		self.indexDB = None
-		self.featuresDB = None
-		self.dataDB = None #+++[12-11-2016] - added additional data field
+	def __init__(self, dbPath, appendSwitch, estNumImages=500, maxBufferSize=50000, dbResizeFactor=2,
+		verbose=True ): #[26-12-2016 +++] append boolean added if data needs to be added to file
+                # call the parent constructor
+                #print(dbPath)
+                super(FeatureIndexer, self).__init__(dbPath, estNumImages=estNumImages,
+                        maxBufferSize=maxBufferSize, dbResizeFactor=dbResizeFactor,
+                        verbose=verbose)
 
-		# initialize the image IDs buffer, index buffer and the keypoints +
-		# features buffer
-		self.imageIDBuffer = []
-		self.indexBuffer = []
-		self.featuresBuffer = None
-		self.dataBuffer = [] #+++[12-11-2016] - added additional data field
+                
+                
+                #[26-12-2016 +++] initialize the db dataset with existing set if append and none if new
+                if appendSwitch == True:
+                # open the HDF5 database for writing and initialize the datasets within
+                # the group
+                        self.db = h5py.File(self.dbPath, mode="a") #[26-12-2016 +++] changed mode from w to a
+                
+                        self.imageIDDB = self.db["image_ids"]
+                        self.indexDB = self.db["index"]
+                        self.featuresDB = self.db["features"]
+                        self.dataDB = self.db["addData"]
 
-		# initialize the total number of features in the buffer along with the
-		# indexes dictionary
-		self.totalFeatures = 0
-		self.idxs = {"index": 0, "features": 0}
-	
-	#+++ [12-11-2016] added additional data in the HDF5 DB (affiliate link)
+                        nbImagesIdx = self.db["image_ids"].shape[0] #Select nb image_ids https://gurus.pyimagesearch.com/lessons/extracting-keypoints-and-local-invariant-descriptors/
+                        nbFeaturesIdx = self.db["features"].shape[0] #Select nb of rows in the image_ids. Same reference
+                        self.idxs = {"index": nbImagesIdx, "features": nbFeaturesIdx}
+
+
+                else:
+                # open the HDF5 database for writing and initialize the datasets within
+                # the group
+                        self.db = h5py.File(self.dbPath, mode="w") 
+                
+                        self.imageIDDB = None
+                        self.indexDB = None
+                        self.featuresDB = None
+                        self.dataDB = None #+++[12-11-2016] - added additional data field
+
+                        self.idxs = {"index": 0, "features": 0}
+                #[26-12-2016 ---]
+                        
+                # initialize the image IDs buffer, index buffer and the keypoints +
+                # features buffer
+                self.imageIDBuffer = []
+                self.indexBuffer = []
+                self.featuresBuffer = None
+                self.dataBuffer = [] #+++[12-11-2016] - added additional data field
+
+                # initialize the total number of features in the buffer along with the
+                # indexes dictionary
+                self.totalFeatures = 0
+                #+++ [12-11-2016] added additional data in the HDF5 DB (affiliate link)
 	def add(self, imageID, kps, features, additionalData):
 		# compute the starting and ending index for the features lookup
 		# the additional data is the ASIN code, and the title provided  

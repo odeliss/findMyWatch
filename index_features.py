@@ -4,6 +4,7 @@
 # import the necessary packages
 #[12-11-2016] added scraped data in hdf5 database
 #[28-11-2016] added title as new scraped data
+#[26-12-2016] added append switch to append data in existing DB
 #TO DO: put the constant in a common constant file
 
 from __future__ import print_function
@@ -22,7 +23,7 @@ IMAGE_WIDTH = 320
 ROW_REFERENCE = 1 #location in CSV line of the reference of the watch
 ROW_TITLE = 2 #location in the CSV line of the title of the watch
 
-if DEBUG == True:
+if DEBUG == False:
         # construct the argument parser and parse the arguments
         ap = argparse.ArgumentParser()
         ap.add_argument("-d", "--dataset", required=True,
@@ -33,18 +34,28 @@ if DEBUG == True:
                 help="Approximate # of images in the dataset")
         ap.add_argument("-b", "--max-buffer-size", type=int, default=50000,
                 help="Maximum buffer size for # of features to be stored in memory")
+        #[26-12-2016 +++]
+        ap.add_argument("-ap", "--appendToFile", type=bool, 
+                help="True indicates that data must be added to existing file")
+        #[26-12-2016 ---]
         args = vars(ap.parse_args())
         
         dataset = args["dataset"]
         featuresDb = args["features_db"]
         approxImages = args["approx_images"]
         maxBufferSize = args["max_buffer_size"]
+        #[26-12-2016 +++]
+        appendToFile = args["appendToFile"]
+        #[26-12-2016 ---]
 else:
         #dataset = "UKBenchDataset/ukbench_quiz"
-        dataset = "datasets/watches/"
-        featuresDb = "features/featuresTest.hdf5"
-        approxImages = 60
+        dataset = "testdata/datasets/watches/"
+        featuresDb = "testdata/features/watchesFeatures.hdf5"
+        approxImages = 2
         maxBufferSize = 80000
+        #[26-12-2016 +++]
+        appendToFile = False
+        #[26-12-2016 ---]
 # initialize the keypoint detector, local invariant descriptor, and the descriptor
 '''Adapted for CV3 compliance
 detector = cv2.FeatureDetector_create("SURF")
@@ -70,8 +81,10 @@ for row in scrapedData: #loop on the CSV file rows and create a dictionnary of a
         
 
 # initialize the feature indexer
-fi = FeatureIndexer(featuresDb, estNumImages=approxImages,
+#[26-12-2016 +++]
+fi = FeatureIndexer(featuresDb, appendToFile, estNumImages=approxImages,
 	maxBufferSize=maxBufferSize, verbose=True)
+#[26-12-2016 ---]
 
 # loop over the images in the dataset
 for (i, imagePath) in enumerate(paths.list_images(dataset)):
